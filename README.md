@@ -29,6 +29,8 @@ cargo run https://google.com
 
 This was a timeboxed exercise and I prioritised making the crate more performant by adding concurrency over a few other items. I've listed those items below, which should be improved.
 
+- Unique vector values in the value of a HashMap: I didn't get a chance to make the child URLs stored in the HashMap value were unique. This should be done by eg turning the vector into a HashSet.
+
 - Handling 202s: A 202 tells us the request is accepted, but is in a queue to be processed. Currently, if we receive a 202, we move on, and that URL is not written into our HashMap. That might mean some entries are missed (best case), or worst case: if we receive a 202 for the *first* GET request for the root URL, then the programme will return immediately! So no other URLs are visited and our return result is empty. Currently we print a warning message if this worst case is hit, so that the user knows to retry shortly. The user can rerun manually as a work-around. Nevertheless, this should be improved on. Perhaps for instance, we should check if the location field in the 202 response headers points to the location we'll be able to find the content soon. Or perhaps we retry.
 
 - Refactor for better encapsulation. I don't like that crawl_individual_url is a free function that accesses/modifies the Crawler struct's state - that's bad encapsulation. I did this as a work around: when trying to spawn threads which directly accessed state by 'self.x', I was getting Compiler complaints about Self not being Copy and thread safe. This needs to be improved upon.
